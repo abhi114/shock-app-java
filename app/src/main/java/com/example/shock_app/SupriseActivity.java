@@ -23,6 +23,7 @@ public class SupriseActivity extends AppCompatActivity {
 
     TextToSpeech tts;
     MediaPlayer mediaPlayer;
+    boolean acceptingTouches = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,16 +46,31 @@ public class SupriseActivity extends AppCompatActivity {
     }
     private void playSoundClip(){
         mediaPlayer = MediaPlayer.create(this,soundUri);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                finish();
+            }
+        });
         mediaPlayer.start();
 
     }
 
-    private void userTriggerActions(){
-        
+    private void userTriggeredActions(){
+        if(!acceptingTouches){
+            return;
+        }
+        acceptingTouches = false;
+
+        showImage();
+        playSoundClip();
+
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        userTriggeredActions();
         return super.onTouchEvent(event);
     }
 }
