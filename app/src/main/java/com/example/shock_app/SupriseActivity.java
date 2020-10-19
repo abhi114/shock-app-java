@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -37,6 +39,9 @@ public class SupriseActivity extends AppCompatActivity {
         soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator + getPackageName() + "/raw/scream2");
 
         Toast.makeText(this,"ready",Toast.LENGTH_SHORT).show();
+
+        Window w = getWindow();
+        w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
     }
 
