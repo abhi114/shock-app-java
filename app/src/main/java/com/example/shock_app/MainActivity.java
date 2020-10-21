@@ -116,6 +116,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void addImageDialog(){
+        final EditText urlBox = new EditText(this);
+        urlBox.setHint("image Url"); // setting the hint for the dialog box
+        // see the audio dialog box method for reference with comments
+        AlertDialog dialog = new AlertDialog.Builder(this) //creating the alert dialog box
+                .setTitle("image Url")
+                .setMessage("Import as image from web.")
+                .setView(urlBox)
+                .setCancelable(true)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String url = urlBox.getText().toString();
+                        if(url == null || url.trim().isEmpty()){
+                            Toast.makeText(getBaseContext(),"url cannot be empty",Toast.LENGTH_SHORT).show();
+                            return;
+                        }else {
+                            downloadImageToFile(url);
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel,null).create();
+        dialog.show();
+    }
+
+    private void downloadImageToFile(String url){
+
+    }
+
 
     private void createNotification(){
         String notificationMessage = "Tap to Shock Friends"; //the message to me displayed on notification

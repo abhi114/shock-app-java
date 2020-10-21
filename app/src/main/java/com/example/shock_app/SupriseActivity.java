@@ -35,8 +35,8 @@ public class SupriseActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
 
         //imageView.setImageResource();
-        photoUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator + getPackageName() + "/drawable/bust_1");
-        soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator + getPackageName() + "/raw/scream2");
+        photoUri = ShockUtils.getDrawableUri(this,"bust_1");
+        soundUri = ShockUtils.getRawUri(this,"behind_you");
 
         Toast.makeText(this,"ready",Toast.LENGTH_SHORT).show();
 
