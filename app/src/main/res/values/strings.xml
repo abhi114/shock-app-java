@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">shock-app</string>
+    <string name="key_stored_offline_images">key_stored_offline_images</string>
+    <string name="key_photo_id">key_photo_id</string>
 </resources>
