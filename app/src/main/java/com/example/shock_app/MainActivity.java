@@ -4,15 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
@@ -50,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView audioTextView;
+    //when someone will touch the images in the activity a broadcast will be sent to fetch latest info
+    //Broadcast Receivers simply respond to broadcast messages from other applications or from the system itself. These messages are sometime called events or intents. For example, applications can also initiate broadcasts to let other applications know that some data has been downloaded to the device and is available for them to use, so this is broadcast receiver who will intercept this communication and will initiate appropriate action.
+    BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        //This method is called when the BroadcastReceiver is receiving an Intent broadcast.
+        public void onReceive(Context context, Intent intent) {
+            updateUI();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.scaryImageView);
         audioTextView = findViewById(R.id.audioTextView);
+
+        updateUI();
     }
 
     @Override
@@ -236,6 +250,24 @@ public class MainActivity extends AppCompatActivity {
         return outputFile;
     }
 
+    //register the broadcast receiver
+
+    // you can register a BroadcastReceiver in onStart() to monitor for changes that impact your UI, and unregister it in onStop() when the user no longer needs them
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Helper to register for and send broadcasts of Intents to local objects within your process. This has a number of advantages over sending global broadcasts
+        //Helper to register for and send broadcasts of Intents to local objects within your process. This has a number of advantages over sending global broadcasts
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,new IntentFilter(ShockUtils.MEDIA_UPDATED_ACTION));
+        //New IntentFilter that matches a single action with no data.
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+    }
+
     private void updateUI(){
         ImageModel imageModel = imgStorer.getSelectedImage(); //get the image selected by the user
 
@@ -251,8 +283,8 @@ public class MainActivity extends AppCompatActivity {
                 .into(imageView);
 
         //handling the audio text
-        AudioModel audioModel = audioStorer.getSelectedAudio();
-        audioTextView.setText(audioModel.getDescriptionMessage());
+        AudioModel audioModel = audioStorer.getSelectedAudio(); // taking the selected audio from the list
+        audioTextView.setText(audioModel.getDescriptionMessage()); // show the description message on the screen
 
 
     }
