@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     AudioStorer audioStorer;
     imageStorer imgStorer;
 
+    ImageView imageView;
+    TextView audioTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
         editor = preferences.edit();
         audioStorer = new AudioStorer(this);
         imgStorer = new imageStorer(this); // initializing the storer class
+
+        imageView = findViewById(R.id.scaryImageView);
+        audioTextView = findViewById(R.id.audioTextView);
     }
 
     @Override
@@ -229,6 +236,27 @@ public class MainActivity extends AppCompatActivity {
         return outputFile;
     }
 
+    private void updateUI(){
+        ImageModel imageModel = imgStorer.getSelectedImage(); //get the image selected by the user
+
+        Uri imgUri;
+        if(imageModel.isAsset()){ // if it is a part of the app and present in drawable
+            imgUri = ShockUtils.getDrawableUri(this,imageModel.getImageFilename()); // images are in drawable
+        }else{
+            imgUri = Uri.fromFile(new File(imageModel.getImageFilename())); // create a uri from a file
+
+        }
+        //update to current selected image
+        Glide.with(this).load(imgUri)
+                .into(imageView);
+
+        //handling the audio text
+        AudioModel audioModel = audioStorer.getSelectedAudio();
+        audioTextView.setText(audioModel.getDescriptionMessage());
+
+
+    }
+
 
     private void createNotification(){
         String notificationMessage = "Tap to Shock Friends"; //the message to me displayed on notification
@@ -256,4 +284,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
 }
