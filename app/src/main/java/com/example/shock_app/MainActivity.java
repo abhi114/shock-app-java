@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -32,6 +33,12 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+
+    //create reference to the audio store and the image store
+    AudioStorer audioStorer;
+    imageStorer imgStorer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
                 finish(); // to finish the activity
             }
         });
+
+        preferences = getSharedPreferences(ShockUtils.SHOCK_SCARED_PREFS,Context.MODE_PRIVATE); // getting the shared preferences
+        editor = preferences.edit();
+        audioStorer = new AudioStorer(this);
+        imgStorer = new imageStorer(this); // initializing the storer class
     }
 
     @Override
@@ -112,7 +124,19 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.show();
     }
-    private void addTTSAudio(String message){
+    private void addTTSAudio(String message){ // adding the string which is spoken by the user using text to speech
+        int mediaId = preferences.getInt(getString(R.string.key_media_id),ShockUtils.STARTING_ID); // default will be the starting id
+        editor.putInt(getString(R.string.key_media_id),mediaId+1); // it is basically next media id
+        // we are incrementing the media id by 1
+        editor.commit();
+        // for this we will use the 2nd constructor
+        AudioModel audioModel = new AudioModel(mediaId,message);
+
+
+
+
+
+
 
     }
 

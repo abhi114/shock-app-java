@@ -23,6 +23,13 @@ public class AudioStorer {
 
     }
 
+    //add audio method
+    public void addAudio(AudioModel audioModel){
+        List<AudioModel> audios = getStoredAudios(); // we first call the audios that are present
+        audios.add(audioModel); // then we added the new one
+        storeAudios(audios); // now we stored it back with the new one
+    }
+
     public void storeAudios(List<AudioModel> audioModelList){
         String key = context.getString(R.string.key_stored_audios);
         Gson gson = new Gson();
