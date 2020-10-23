@@ -1,6 +1,7 @@
 package com.example.shock_app;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
@@ -13,6 +14,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -28,8 +30,13 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -131,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
         // for this we will use the 2nd constructor
         AudioModel audioModel = new AudioModel(mediaId,message);
-
+        audioStorer.addAudio(audioModel);   //adding it to the audiostorer or the shared preferences
 
 
 
@@ -166,7 +173,60 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadImageToFile(String url){
+        //download the image with glide
+        Glide.with(this)
+                //by default it is set to as drawable but as bitmap build the request in the form of bitmap
+                .asBitmap()
+                .load(url)
+                //The into(Target) method is used not only to start each request, but also to specify the Target that will receive the results of the request:
+                // Note that both into(Target) and into(ImageView) return a Target instance
 
+                .into(new SimpleTarget<Bitmap>() { // it is basically used when you dont want to load the image to the image view and wants to save it
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        saveImage(resource);
+                    }
+                });
+
+
+    }
+    public void saveImage(Bitmap bitmap){
+        FileOutputStream outputStream = null;
+        //FileOutputStream is meant for writing streams of raw bytes such as image data. For writing streams of characters, consider using FileWriter.
+        File file = createInternalFile(UUID.randomUUID().toString()); //A class that represents an immutable universally unique identifier (UUID). A UUID represents a 128-bit value.
+        //he UUID is generated using a cryptographically strong pseudo random number generator.
+        int mediaId = preferences.getInt(getString(R.string.key_media_id),ShockUtils.STARTING_ID);
+        editor.putInt(getString(R.string.key_media_id),mediaId +1);
+        editor.commit();
+
+        //Returns the absolute path of this file. An absolute path is a path that starts at a root of the file system. On Android, there is only one root: /.
+        ImageModel imageModel = new ImageModel(mediaId,file.getAbsolutePath(),false); // the file.absolute path will be same as passed in the uuid as file is of the that instance
+
+        try {
+            //first we create a new file instance by writing the giving the file name as new File(imageModel.getImageFilename())
+            // the file instance created is passed to the fileoutputStream to written with the image
+
+            outputStream = new FileOutputStream(new File(imageModel.getImageFilename()));
+            //Write a compressed version of the bitmap to the specified outputstream.
+            bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+            //Compress to the JPEG format. quality of 0 means compress for the smallest size. 100 means compress for max visual quality.
+            outputStream.close();
+
+            imgStorer.addImage(imageModel);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private File createInternalFile(String filename){
+        //using this to create file
+        File outputDir = getExternalCacheDir();
+        //Returns absolute paths to application-specific directories on all shared/external storage devices where the application can place cache files it owns. These files are internal to the application, and not typically visible to the user as media.
+        // This is like getCacheDir() in that these files will be deleted when the application is uninstalled
+        File outputFile = new File(outputDir,filename); // FIRST IS THE ABSOLUTE PATH OF THE APP DIRECTIORY AND THE SECOND IS THE FILE NAME
+
+        return outputFile;
     }
 
 
