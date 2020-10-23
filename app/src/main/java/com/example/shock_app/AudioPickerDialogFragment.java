@@ -13,7 +13,9 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class AudioPickerDialogFragment extends DialogFragment {
+import java.util.List;
+
+public class AudioPickerDialogFragment extends DialogFragment implements AudioPickerAdapter.Callback {
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
 
@@ -24,7 +26,8 @@ public class AudioPickerDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getContext().getSharedPreferences(ShockUtils.SHOCK_SCARED_PREFS, Context.MODE_PRIVATE);
+        preferences = getContext().getSharedPreferences(ShockUtils.SHOCK_SCARED_PREFS, Context.MODE_PRIVATE); //getting the shared prefernce
+        editor = preferences.edit();
     }
 
     //Called to have the fragment instantiate its user interface view. This is optional, and non-graphical fragments can return null (which is the default implementation). This will be called between onCreate(android.os.Bundle) and onActivityCreated(android.os.Bundle).
@@ -33,7 +36,12 @@ public class AudioPickerDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.layout_media_picker,container,false); //inflating the recycler view
+
+        List<AudioModel> items = new AudioStorer(getContext()).getAllAudios(); //getting all the audio to create the adapter
+
         return super.onCreateView(inflater, container, savedInstanceState);
+
     }
 
 
@@ -43,5 +51,10 @@ public class AudioPickerDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void itemSelected(AudioModel item) {
+
     }
 }
