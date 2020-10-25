@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.app.AlertDialog;
@@ -85,6 +87,28 @@ public class MainActivity extends AppCompatActivity {
         audioTextView = findViewById(R.id.audioTextView);
 
         updateUI();
+
+        //add the click listener for the opening of the select audiopicker fragment
+        findViewById(R.id.audioSurface).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //API for performing a set of Fragment operations. fragment transaction
+                //Return the FragmentManager for interacting with fragments associated with this activity. getSupportFragmentManager()
+                //Start a series of edit operations on the Fragments associated with this FragmentManager. it returns an fragment Transaction
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+                if(prev != null){
+                    ft.remove(prev); //Remove an existing fragment.
+
+                }
+                ft.addToBackStack(null); //Add this transaction to the back stack. This means that the transaction will be remembered after it is committed, and will reverse its operation when later popped off the stack.
+
+                AudioPickerDialogFragment dialogFragment = new AudioPickerDialogFragment();
+                dialogFragment.setCancelable(true);
+                dialogFragment.show(ft,"dialog"); //Display the dialog, adding the fragment using an existing transaction and then committing the transaction.
+
+            }
+        });
     }
 
     @Override

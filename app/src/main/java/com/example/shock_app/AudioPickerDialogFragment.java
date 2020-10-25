@@ -1,6 +1,8 @@
 package com.example.shock_app;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,12 +12,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class AudioPickerDialogFragment extends DialogFragment implements AudioPickerAdapter.Callback {
+public class AudioPickerDialogFragment extends DialogFragment implements AudioPickerAdapter.Callback { //we are implementing the callback created in AudioAdapter and is passed with the item view
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
 
@@ -38,10 +41,16 @@ public class AudioPickerDialogFragment extends DialogFragment implements AudioPi
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.layout_media_picker,container,false); //inflating the recycler view
 
-        List<AudioModel> items = new AudioStorer(getContext()).getAllAudios(); //getting all the audio to create the adapter
+        List<AudioModel> items = new AudioStorer(getContext()).getAllAudios();//getting all the audio to create the adapter
 
-        return super.onCreateView(inflater, container, savedInstanceState);
+        adapter = new AudioPickerAdapter(items,this); // making the instance of the adapter
+        recyclerView = view.findViewById(R.id.recyclerView); // recyclerview
+        recyclerView.setAdapter(adapter);
+        linearLayoutManager = new LinearLayoutManager(getContext());  //Creates a vertical LinearLayoutManager
+        recyclerView.setLayoutManager(linearLayoutManager); // RecyclerView will not function without it
 
+
+        return view;
     }
 
 
@@ -51,10 +60,25 @@ public class AudioPickerDialogFragment extends DialogFragment implements AudioPi
     @Override
     public void onStart() {
         super.onStart();
+
+        Dialog dialog  = getDialog(); // getDialog() simply returns the private variable mDialog from the DialogFragment.
+        if(dialog != null){
+            int width = ViewGroup.LayoutParams.MATCH_PARENT; //getting the match parent of the view group
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+            //Retrieve the current Window for the activity
+            //making the dialog full screnn
+            dialog.getWindow().setLayout(width,height);
+        }
+
     }
 
     @Override
     public void itemSelected(AudioModel item) {
-
+        editor.putInt(getString(R.string.key_audio_id),item.getId());// update which item was selected
+        editor.commit();
+        dismiss();
+        //Dismiss the fragment and its dialog. If the fragment was added to the back stack, all back stack state up to and including this entry will be popped. Otherwise, a new transaction will be committed to remove the fragment.
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(ShockUtils.MEDIA_UPDATED_ACTION)); // sending a local broadcast to the main activity
+        //Broadcast the given intent to all interested BroadcastReceivers.
     }
 }
